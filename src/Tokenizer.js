@@ -1,6 +1,7 @@
 // Token types table
 const TokenTypes = {
     NUMBER: 'NUMBER',
+    IDENTIFIER: 'IDENTIFIER',
     ADDITION: '+',
     SUBTRACTION: '-',
     MULTIPLICATION: '*',
@@ -15,6 +16,7 @@ const TokenTypes = {
 const TokenSpec = [
     [/^\s+/, null],
     [/^(?:\d+(?:\.\d*)?|\.\d+)/, TokenTypes.NUMBER],
+    [/^[a-z]+/, TokenTypes.IDENTIFIER],
     [/^\+/, TokenTypes.ADDITION],
     [/^\-/, TokenTypes.SUBTRACTION],
     [/^\*/, TokenTypes.MULTIPLICATION],

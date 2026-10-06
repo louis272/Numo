@@ -25,6 +25,14 @@ const operators = {
     },
 };
 
+// List of supported function names
+const functionList = ['sin', 'cos', 'tan'];
+
+// Is the token a valid function
+const isFunction = (token) => {
+    return functionList.includes(token.toLowerCase());
+}
+
 // Assert function
 const assert = (predicate) => {
     if (predicate) return;
@@ -50,6 +58,18 @@ const evaluate = (expression) => {
         
         if (op === '(') return;
 
+        if (isFunction(op)) {
+            const topValue = result.pop();
+            switch (op) {
+                case 'sin':
+                    return Math.sin(topValue);
+                case 'cos':
+                    return Math.cos(topValue);
+                case 'tan':
+                    return Math.tan(topValue);
+            }
+        }
+
         const rightToken = parseFloat(result.pop());
         const leftToken = parseFloat(result.pop());
 
@@ -73,6 +93,10 @@ const evaluate = (expression) => {
         switch (true) {
             case !isNaN(parseFloat(token)):
                 addToResult(token);
+                break;
+
+            case isFunction(token):
+                opStack.push(token);
                 break;
             
             case Object.keys(operators).includes(token):
@@ -105,6 +129,9 @@ const evaluate = (expression) => {
 
                 assert(seeTop() === '(');
                 handlePop();
+                if (isFunction(seeTop())) {
+                    addToResult(handlePop());
+                }
                 break;
 
             default:
@@ -127,6 +154,6 @@ const evaluate = (expression) => {
 };
 
 
-const input = '(9.5 + 10.5) * 30 - 40';
+const input = 'sin(3.14) * 1000 - 1';
 const result = evaluate(input);
-console.log(result); // 560
+console.log(result); // 0.5926529164868282
