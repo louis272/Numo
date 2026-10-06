@@ -3,6 +3,10 @@ const Tokenizer = require('../src/Tokenizer');
 
 // Operator precedence table
 const operators = {
+    'u': {
+        prec: 4,
+        assoc: 'right',
+    },
     '^': {
         prec: 4,
         assoc: 'right',
@@ -41,6 +45,7 @@ const assert = (predicate) => {
 
 // Main evaluation function
 const evaluate = (expression) => {
+    const opSymbols = Object.keys(operators);
     const opStack = [];
     let result = [];
 
@@ -57,6 +62,8 @@ const evaluate = (expression) => {
         const op = opStack.pop();
         
         if (op === '(') return;
+
+        if (op === 'u') return -parseFloat(result.pop());
 
         if (isFunction(op)) {
             const topValue = result.pop();
@@ -83,7 +90,7 @@ const evaluate = (expression) => {
             case '/':
                 return leftToken / rightToken;
             case '^':
-                return leftToken ^ rightToken;
+                return leftToken ** rightToken;
             default:
                 throw new Error(`Invalid operation: ${op}`);
         }
@@ -99,7 +106,7 @@ const evaluate = (expression) => {
                 opStack.push(token);
                 break;
             
-            case Object.keys(operators).includes(token):
+            case opSymbols.includes(token):
                 const op1 = token;
                 let op2 = seeTop();
 
@@ -129,7 +136,8 @@ const evaluate = (expression) => {
 
                 assert(seeTop() === '(');
                 handlePop();
-                if (isFunction(seeTop())) {
+                topOfStack = seeTop();
+                if (topOfStack && isFunction(topOfStack)) {
                     addToResult(handlePop());
                 }
                 break;
@@ -139,10 +147,21 @@ const evaluate = (expression) => {
         }
     };
 
-    const tokenizer = new Tokenizer(input);
+    const tokenizer = new Tokenizer(expression);
     let token;
+    let prevToken = null;
     while ((token = tokenizer.getNextToken())) {
-        handleToken(token.value);
+        if (
+            token.value === '-' &&
+            (prevToken === null || 
+                prevToken.value === '(' || 
+                opSymbols.includes(prevToken.value))
+        ) {
+            handleToken('u');  // Use a "virtual" unary token
+        } else {
+            handleToken(token.value);
+        }
+        prevToken = token;
     }
 
     while (opStack.length > 0) {
@@ -154,6 +173,16 @@ const evaluate = (expression) => {
 };
 
 
-const input = 'sin(3.14) * 1000 - 1';
-const result = evaluate(input);
-console.log(result); // 0.5926529164868282
+const input1 = '-1';
+const input2 = '(-1)';
+const input3 = '1 + -2';
+const input4 = '1 - -2';
+const input5 = '-2 ^ 2';
+const input6 = '(-2) ^ 2';
+
+console.log(evaluate(input1)); // -1
+console.log(evaluate(input2)); // -1
+console.log(evaluate(input3)); // -1
+console.log(evaluate(input4)); // 3
+console.log(evaluate(input5)); // -4
+console.log(evaluate(input6)); // 4
