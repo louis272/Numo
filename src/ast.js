@@ -1,0 +1,229 @@
+// Imports
+const Tokenizer = require('../src/Tokenizer');
+
+// Operator precedence table
+const operators = {
+    'u': {
+        prec: 4,
+        assoc: 'right',
+    },
+    '^': {
+        prec: 4,
+        assoc: 'right',
+    },
+    '*': {
+        prec: 3,
+        assoc: 'left',
+    },
+    '/': {
+        prec: 3,
+        assoc: 'left',
+    },
+    '+': {
+        prec: 2,
+        assoc: 'left',
+    },
+    '-': {
+        prec: 2,
+        assoc: 'left',
+    },
+};
+
+// List of supported function names
+const functionList = ['sin', 'cos', 'tan'];
+
+// Is the token a valid function
+const isFunction = (token) => {
+    return functionList.includes(token.toLowerCase());
+}
+
+// Assert function
+const assert = (predicate) => {
+    if (predicate) return;
+    throw new Error(`Assertion failed for predicate: ${predicate}`);
+};
+
+// Main function
+const generateAST = (expression) => {
+    const opSymbols = Object.keys(operators);
+    const opStack = [];
+    let result = [];
+
+    // Return the operator on top of the stack of operators
+    const seeTop = () => {
+        return opStack.at(-1);
+    };
+
+    const addToResult = (token) => {
+        result.push(token);
+    };
+
+    const handlePop = () => {
+        const op = opStack.pop();
+        
+        if (op === '(') return;
+
+        if (op === 'u') {
+            return {
+                type: 'UnaryExpression',
+                value: result.pop(),
+            };
+        }
+
+        if (isFunction(op)) {
+            return {
+                type: 'Function',
+                name: op,
+                value: result.pop(),
+            };
+        }
+
+        const rightToken = result.pop();
+        const leftToken = result.pop();
+
+        if (opSymbols.includes(op)) {
+            return {
+                type: 'BinaryExpression',
+                operator: op,
+                left: leftToken,
+                right: rightToken,
+            };
+        }
+    };
+
+    const handleToken = (token) => {
+        switch (true) {
+            case !isNaN(parseFloat(token)):
+                addToResult({ type: 'Number', value: parseFloat(token) });
+                break;
+
+            case isFunction(token):
+                opStack.push(token);
+                break;
+            
+            case opSymbols.includes(token):
+                const op1 = token;
+                let op2 = seeTop();
+
+                while (
+                    op2 !== undefined && op2 !== '(' && 
+                    (operators[op2].prec > operators[op1].prec || 
+                        (operators[op2].prec === operators[op1].prec && operators[op1].assoc === 'left'))
+                ) {
+                    addToResult(handlePop());  // Pop and add op2
+                    op2 = seeTop();
+                }
+
+                opStack.push(op1);
+                break;
+            
+            case token === '(':
+                opStack.push(token);
+                break;
+        
+            case token === ')':
+                let topOp = seeTop();
+                while (topOp !== '(') {
+                    assert(opStack.length !== 0);
+                    addToResult(handlePop());
+                    topOp = seeTop();
+                }
+
+                assert(seeTop() === '(');
+                handlePop();
+                topOfStack = seeTop();
+                if (topOfStack && isFunction(topOfStack)) {
+                    addToResult(handlePop());
+                }
+                break;
+
+            default:
+                throw new Error(`Invalid token: ${token}`);
+        }
+    };
+
+    const tokenizer = new Tokenizer(expression);
+    let token;
+    let prevToken = null;
+    while ((token = tokenizer.getNextToken())) {
+        if (
+            token.value === '-' &&
+            (prevToken === null || 
+                prevToken.value === '(' || 
+                opSymbols.includes(prevToken.value))
+        ) {
+            handleToken('u');  // Use a "virtual" unary token
+        } else {
+            handleToken(token.value);
+        }
+        prevToken = token;
+    }
+
+    while (opStack.length > 0) {
+        assert(seeTop() !== '(');  // Mismatched parentheses
+        addToResult(handlePop());
+    }
+
+    return result[0];
+};
+
+// Class for visitor design pattern
+class NodeVisitor {
+    visit(node) {
+        switch (node.type) {
+            case 'Number':
+                return this.visitNumber(node);
+            case 'BinaryExpression':
+                return this.visitBinaryExpression(node);
+            case 'UnaryExpression':
+                return this.visitUnaryExpression(node);
+            case 'Function':
+                return this.visitFunction(node);
+        }
+    }
+
+    visitNumber(node) {
+        return node.value;
+    }
+
+    visitBinaryExpression(node) {
+        switch (node.operator) {
+            case '+':
+                return this.visit(node.left) + this.visit(node.right);
+            case '-':
+                return this.visit(node.left) - this.visit(node.right);
+            case '*':
+                return this.visit(node.left) * this.visit(node.right);
+            case '/':
+                return this.visit(node.left) / this.visit(node.right);
+            case '^':
+                return this.visit(node.left) ** this.visit(node.right);
+            default:
+                throw new Error(`Invalid operation: ${node.operator}`);
+        }
+    }
+
+    visitUnaryExpression(node) {
+        return -this.visit(node.value);
+    }
+
+    visitFunction(node) {
+        switch (node.name) {
+            case 'sin':
+                return Math.sin(this.visit(node.value));
+            case 'cos':
+                return Math.cos(this.visit(node.value));
+            case 'tan':
+                return Math.tan(this.visit(node.value));
+            default:
+                throw new Error(`Invalid function: ${node.name}`);
+        }
+    }
+};
+
+
+const input = '-1 + 2 * sin(3.14)'
+const ast = generateAST(input)
+const visitor = new NodeVisitor()
+const result = visitor.visit(ast)
+console.log(result) // -0.9968146941670264
