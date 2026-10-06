@@ -38,6 +38,10 @@ const toRPN = (expression) => {
         return opStack.at(-1);
     };
 
+    const addToRpn = (token) => {
+        rpn += ' ' + token
+    };
+
     const handlePop = () => {
         return opStack.pop();
     };
@@ -45,7 +49,7 @@ const toRPN = (expression) => {
     const handleToken = (token) => {
         switch (true) {
             case !isNaN(parseFloat(token)):
-                rpn += ' ' + token;
+                addToRpn(token);
                 break;
             
             case Object.keys(operators).includes(token):
@@ -57,7 +61,7 @@ const toRPN = (expression) => {
                     (operators[op2].prec > operators[op1].prec || 
                         (operators[op2].prec === operators[op1].prec && operators[op1].assoc === 'left'))
                 ) {
-                    rpn += ' ' + handlePop();  // Pop and add op2
+                    addToRpn(handlePop());  // Pop and add op2
                     op2 = seeTop();
                 }
 
@@ -72,7 +76,7 @@ const toRPN = (expression) => {
                 let topOp = seeTop();
                 while (topOp !== '(') {
                     assert(opStack.length !== 0);
-                    rpn += ' ' + handlePop();
+                    addToRpn(handlePop());
                     topOp = seeTop();
                 }
 
@@ -93,7 +97,7 @@ const toRPN = (expression) => {
 
     while (opStack.length > 0) {
         assert(seeTop() !== '(');  // Mismatched parentheses
-        rpn += ' ' + handlePop();
+        addToRpn(handlePop());
     }
 
     return rpn;
