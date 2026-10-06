@@ -62,6 +62,10 @@ class Tokenizer {
     }
 }
 
+// Export the class
+module.exports = Tokenizer;
+
+
 // Basic tokenizer function
 // const tokenizer = (expression) => {
 //     let buffer = '';
@@ -110,24 +114,24 @@ class Tokenizer {
 // const result = tokenizer(input)
 // console.log(result) // ['10', '+', '20']
 
-const input = '10 + 20 * 30 - 40'
-const tokenizer = new Tokenizer(input)
+// const input = '10 + 20 * 30 - 40'
+// const tokenizer = new Tokenizer(input)
 
-console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '10'}
-console.log(tokenizer.getNextToken()) // {type: '+', value: '+'}
-console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '20'}
-console.log(tokenizer.getNextToken()) // {type: '*', value: '*'}
-console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '30'}
-console.log(tokenizer.getNextToken()) // {type: '-', value: '-'}
-console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '40'}
-console.log(tokenizer.getNextToken()) // 'null' because end of input reached!
+// console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '10'}
+// console.log(tokenizer.getNextToken()) // {type: '+', value: '+'}
+// console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '20'}
+// console.log(tokenizer.getNextToken()) // {type: '*', value: '*'}
+// console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '30'}
+// console.log(tokenizer.getNextToken()) // {type: '-', value: '-'}
+// console.log(tokenizer.getNextToken()) // {type: 'NUMBER', value: '40'}
+// console.log(tokenizer.getNextToken()) // 'null' because end of input reached!
 
-function printAllTokens(input) {
-  const tokenizer = new Tokenizer(input)
+// function printAllTokens(input) {
+//   const tokenizer = new Tokenizer(input)
 
-  let token
-  while ((token = tokenizer.getNextToken()))
-    console.log(token)
-}
+//   let token
+//   while ((token = tokenizer.getNextToken()))
+//     console.log(token)
+// }
 
-printAllTokens(input)
+// printAllTokens(input)
