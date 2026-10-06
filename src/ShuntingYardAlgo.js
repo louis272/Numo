@@ -61,7 +61,7 @@ const evaluate = (expression) => {
             case '/':
                 return leftToken / rightToken;
             case '^':
-                return leftToken ^ rightToken;
+                return leftToken ** rightToken;
             default:
                 throw new Error(`Invalid operation: ${op}`);
         }
