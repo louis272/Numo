@@ -25,7 +25,7 @@ const operators = {
 // Assert function
 const assert = (predicate) => {
     if (predicate) return;
-    throw new Error('Assertion failed for predicate: ${predicate}');
+    throw new Error(`Assertion failed for predicate: ${predicate}`);
 };
 
 // Shunting Yard algorithm implementation
@@ -63,7 +63,7 @@ const evaluate = (expression) => {
             case '^':
                 return leftToken ^ rightToken;
             default:
-                throw new Error('Invalid operation: ${op}');
+                throw new Error(`Invalid operation: ${op}`);
         }
     };
 
@@ -106,7 +106,7 @@ const evaluate = (expression) => {
                 break;
 
             default:
-                throw new Error('Invalid token: ${token}');
+                throw new Error(`Invalid token: ${token}`);
         }
     };
 
@@ -182,7 +182,7 @@ const toRPN = (expression) => {
                 break;
 
             default:
-                throw new Error('Invalid token: ${token}');
+                throw new Error(`Invalid token: ${token}`);
         }
     };
 

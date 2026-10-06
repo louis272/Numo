@@ -27,7 +27,7 @@ const RPNEvaluator = (expression) => {
                 stack.push(leftToken ** rightToken);
                 return;
             default:
-                throw new Error('Invalid token: ${token}');
+                throw new Error(`Invalid token: ${token}`);
         }
     };
 
