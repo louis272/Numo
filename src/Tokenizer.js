@@ -14,7 +14,7 @@ const TokenTypes = {
 // Regex - TokenType correspondance array
 const TokenSpec = [
     [/^\s+/, null],
-    [/^\d+/, TokenTypes.NUMBER],
+    [/^(?:\d+(?:\.\d*)?|\.\d+)/, TokenTypes.NUMBER],
     [/^\+/, TokenTypes.ADDITION],
     [/^\-/, TokenTypes.SUBTRACTION],
     [/^\*/, TokenTypes.MULTIPLICATION],

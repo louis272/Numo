@@ -127,6 +127,6 @@ const evaluate = (expression) => {
 };
 
 
-const input = '10 + 20 * 30 - 40';
+const input = '(9.5 + 10.5) * 30 - 40';
 const result = evaluate(input);
-console.log(result); // 570
+console.log(result); // 560
