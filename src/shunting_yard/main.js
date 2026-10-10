@@ -1,5 +1,5 @@
 // Imports
-const Tokenizer = require('../src/Tokenizer');
+const Tokenizer = require('./Tokenizer');
 
 // Operator precedence table
 const operators = {
@@ -43,8 +43,8 @@ const assert = (predicate) => {
     throw new Error(`Assertion failed for predicate: ${predicate}`);
 };
 
-// Main function
-const generateAST = (expression) => {
+// Main evaluation function
+const evaluate = (expression) => {
     const opSymbols = Object.keys(operators);
     const opStack = [];
     let result = [];
@@ -63,38 +63,43 @@ const generateAST = (expression) => {
         
         if (op === '(') return;
 
-        if (op === 'u') {
-            return {
-                type: 'UnaryExpression',
-                value: result.pop(),
-            };
-        }
+        if (op === 'u') return -parseFloat(result.pop());
 
         if (isFunction(op)) {
-            return {
-                type: 'Function',
-                name: op,
-                value: result.pop(),
-            };
+            const topValue = result.pop();
+            switch (op) {
+                case 'sin':
+                    return Math.sin(topValue);
+                case 'cos':
+                    return Math.cos(topValue);
+                case 'tan':
+                    return Math.tan(topValue);
+            }
         }
 
-        const rightToken = result.pop();
-        const leftToken = result.pop();
+        const rightToken = parseFloat(result.pop());
+        const leftToken = parseFloat(result.pop());
 
-        if (opSymbols.includes(op)) {
-            return {
-                type: 'BinaryExpression',
-                operator: op,
-                left: leftToken,
-                right: rightToken,
-            };
+        switch (op) {
+            case '+':
+                return leftToken + rightToken;
+            case '-':
+                return leftToken - rightToken;
+            case '*':
+                return leftToken * rightToken;
+            case '/':
+                return leftToken / rightToken;
+            case '^':
+                return leftToken ** rightToken;
+            default:
+                throw new Error(`Invalid operation: ${op}`);
         }
     };
 
     const handleToken = (token) => {
         switch (true) {
             case !isNaN(parseFloat(token)):
-                addToResult({ type: 'Number', value: parseFloat(token) });
+                addToResult(token);
                 break;
 
             case isFunction(token):
@@ -167,63 +172,17 @@ const generateAST = (expression) => {
     return result[0];
 };
 
-// Class for visitor design pattern
-class NodeVisitor {
-    visit(node) {
-        switch (node.type) {
-            case 'Number':
-                return this.visitNumber(node);
-            case 'BinaryExpression':
-                return this.visitBinaryExpression(node);
-            case 'UnaryExpression':
-                return this.visitUnaryExpression(node);
-            case 'Function':
-                return this.visitFunction(node);
-        }
-    }
 
-    visitNumber(node) {
-        return node.value;
-    }
+const input1 = '-1';
+const input2 = '(-1)';
+const input3 = '1 + -2';
+const input4 = '1 - -2';
+const input5 = '-2 ^ 2';
+const input6 = '(-2) ^ 2';
 
-    visitBinaryExpression(node) {
-        switch (node.operator) {
-            case '+':
-                return this.visit(node.left) + this.visit(node.right);
-            case '-':
-                return this.visit(node.left) - this.visit(node.right);
-            case '*':
-                return this.visit(node.left) * this.visit(node.right);
-            case '/':
-                return this.visit(node.left) / this.visit(node.right);
-            case '^':
-                return this.visit(node.left) ** this.visit(node.right);
-            default:
-                throw new Error(`Invalid operation: ${node.operator}`);
-        }
-    }
-
-    visitUnaryExpression(node) {
-        return -this.visit(node.value);
-    }
-
-    visitFunction(node) {
-        switch (node.name) {
-            case 'sin':
-                return Math.sin(this.visit(node.value));
-            case 'cos':
-                return Math.cos(this.visit(node.value));
-            case 'tan':
-                return Math.tan(this.visit(node.value));
-            default:
-                throw new Error(`Invalid function: ${node.name}`);
-        }
-    }
-};
-
-
-const input = '-1 + 2 * sin(3.14)'
-const ast = generateAST(input)
-const visitor = new NodeVisitor()
-const result = visitor.visit(ast)
-console.log(result) // -0.9968146941670264
+console.log(evaluate(input1)); // -1
+console.log(evaluate(input2)); // -1
+console.log(evaluate(input3)); // -1
+console.log(evaluate(input4)); // 3
+console.log(evaluate(input5)); // -4
+console.log(evaluate(input6)); // 4
