@@ -1,0 +1,23 @@
+Expression
+    = Term (("+" / "-") Term)*
+
+Term
+    = Factor (("*" / "/") Factor)*
+
+Factor
+    = Primary ("^" Factor)*
+
+Primary
+    = ParenthesizedExpression
+    / UnaryExpression
+    / FunctionExpression
+    / NUMBER
+
+ParenthesizedExpression
+    = "(" Expression ")"
+
+UnaryExpression
+    = "-" Factor
+
+FunctionExpression
+    = IDENTIFIER ParenthesizedExpression
