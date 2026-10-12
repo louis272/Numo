@@ -1,0 +1,25 @@
+Expression
+    = Prefix (Infix)*
+
+
+Prefix
+    = ParenthesizedExpression
+    / UnaryExpression
+    / FunctionExpression
+    / NUMBER
+
+
+Infix
+    = ("+" / "-" / "*" / "/" / "^") Expression
+
+
+ParenthesizedExpression
+    = "(" Expression ")"
+
+
+UnaryExpression
+    = "-" Expression
+
+
+FunctionExpression
+    = FUNC_ID ParenthesizedExpression
