@@ -1,0 +1,60 @@
+Program
+    = StatementList
+
+
+StatementList
+    = Statement+
+
+
+Statement
+    = VariableStatement
+    / PrintStatement
+    / ExpressionStatement
+
+
+VariableStatement
+    = "var" IDENTIFIER "=" Expression ";"
+
+
+PrintStatement
+    = "print" ParenthesizedExpression ";"
+
+
+ExpressionStatement
+    = Expression ";"
+
+
+Expression
+    = Prefix (Infix)*
+
+
+Prefix
+    = ParenthesizedExpression
+    / UnaryExpression
+    / VariableOrFunctionExpression
+    / NUMBER
+
+
+Infix
+    = ("+" / "-" / "*" / "/" / "^") Expression
+
+
+ParenthesizedExpression
+    = "(" Expression ")"
+
+
+UnaryExpression
+    = "-" Expression
+
+
+VariableOrFunctionExpression
+    = Variable
+    / FunctionExpression
+
+
+Variable
+    = IDENTIFIER
+
+
+FunctionExpression
+    = IDENTIFIER ParenthesizedExpression
